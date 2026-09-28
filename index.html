@@ -351,17 +351,50 @@
     </div>
 
     <div class="tmsModal" id="profileModal">
-      <div class="tmsModalBox">
-        <img src="icon-192.png" alt="TMS Library" class="tmsModalLogo">
-        <h2 class="tmsCenterLine" style="color:#FF8C00; font-size:24px; font-weight:bold; margin-bottom:20px;">TMS Library</h2>
-        <p style="font-size:18px; font-weight:bold; margin-bottom:10px;">Name: <span id="profileName"></span></p>
-        <p style="font-size:18px; font-weight:bold; margin-bottom:10px;">Phone No: <span id="profilePhone"></span></p>
-        <p style="font-size:18px; font-weight:bold; margin-bottom:10px;">No. of Devices: <span id="profileDevices"></span></p>
-        <p style="font-size:18px; font-weight:bold; margin-bottom:35px;">Access Period : <span id="profileAccessWrap" style="display:inline-block; vertical-align:top;"></span></p>
-        <button onclick="downloadProfilePdf()" style="width:100%; padding:14px; background:#4CAF50; color:#fff; border:none; border-radius:8px; font-size:17px; font-weight:bold; cursor:pointer; margin-bottom:40px;">Download PDF</button>
-        <p class="tmsCenterLine" style="font-weight:bold; font-size:16px; margin-bottom:5px;">Completely private library.</p>
-        <p class="tmsCenterLine" style="font-weight:bold; font-size:16px; margin-bottom:15px;">Call:+91-9830894559</p>
-        <button onclick="closeProfile()" style="width:100%; padding:12px; background:#ccc; color:#333; border:none; border-radius:8px; font-size:16px; font-weight:bold; cursor:pointer;">Close</button>
+      <div class="tmsModalBox" style="max-height:100%; overflow-y:auto;">
+        <img src="icon-192.png" alt="TMS Library" class="tmsModalLogo" style="width:100px; height:100px;">
+        <h2 class="tmsCenterLine" style="color:#FF8C00; font-size:28px; font-weight:bold; margin-bottom:0;">TMS Library</h2>
+        <hr style="border:0; border-top:3px solid #000; margin:20px 0 24px 0;">
+
+        <table style="width:100%; border-collapse:collapse; font-size:18px;">
+          <tr>
+            <td style="font-weight:bold; white-space:nowrap; padding:8px 0; vertical-align:top;">Name</td>
+            <td style="font-weight:bold; padding:8px 0 8px 6px; vertical-align:top;">:</td>
+            <td id="profileName" style="padding:8px 0 8px 24px; word-break:break-word;"></td>
+          </tr>
+          <tr>
+            <td style="font-weight:bold; white-space:nowrap; padding:8px 0; vertical-align:top;">Phone</td>
+            <td style="font-weight:bold; padding:8px 0 8px 6px; vertical-align:top;">:</td>
+            <td id="profilePhone" style="padding:8px 0 8px 24px;"></td>
+          </tr>
+          <tr>
+            <td style="font-weight:bold; white-space:nowrap; padding:8px 0; vertical-align:top;">Allowed Devices</td>
+            <td style="font-weight:bold; padding:8px 0 8px 6px; vertical-align:top;">:</td>
+            <td id="profileAllowed" style="padding:8px 0 8px 24px;"></td>
+          </tr>
+          <tr>
+            <td style="font-weight:bold; white-space:nowrap; padding:8px 0; vertical-align:top;">Logged in</td>
+            <td style="font-weight:bold; padding:8px 0 8px 6px; vertical-align:top;">:</td>
+            <td id="profileLoggedIn" style="padding:8px 0 8px 24px;"></td>
+          </tr>
+          <tr>
+            <td style="font-weight:bold; white-space:nowrap; padding:8px 0; vertical-align:top;">Access Start</td>
+            <td style="font-weight:bold; padding:8px 0 8px 6px; vertical-align:top;">:</td>
+            <td id="profileStart" style="padding:8px 0 8px 24px;"></td>
+          </tr>
+          <tr>
+            <td style="font-weight:bold; white-space:nowrap; padding:8px 0; vertical-align:top;">Access End</td>
+            <td style="font-weight:bold; padding:8px 0 8px 6px; vertical-align:top;">:</td>
+            <td id="profileEnd" style="padding:8px 0 8px 24px;"></td>
+          </tr>
+        </table>
+
+        <p class="tmsCenterLine" style="font-size:18px; margin-top:64px; margin-bottom:32px;">Completely private library.</p>
+        <p class="tmsCenterLine" style="font-size:18px; margin-bottom:32px;">Call / Whatsapp : Biswajit : +91-9830894559</p>
+        <p class="tmsCenterLine" style="font-size:18px; margin-bottom:36px;">Thanks.</p>
+
+        <button onclick="downloadProfilePdf()" style="width:100%; padding:14px; background:#4CAF50; color:#fff; border:none; border-radius:8px; font-size:17px; font-weight:bold; cursor:pointer; margin-bottom:12px;">Download PDF</button>
+        <button onclick="closeProfile()" style="width:100%; padding:14px; background:#ccc; color:#333; border:none; border-radius:8px; font-size:17px; font-weight:bold; cursor:pointer;">Close</button>
       </div>
     </div>
 
@@ -680,11 +713,10 @@ function shareTmsLink() {
       if (!currentUserData) return;
       document.getElementById('profileName').innerText = currentUserData.name || "-";
       document.getElementById('profilePhone').innerText = currentUserData.phone || "-";
-      document.getElementById('profileDevices').innerText = ((currentUserData.devices || []).length) + " / " + (currentUserData.maxDevices || 0);
-
-      const startFmt = currentUserData.accessStart ? formatDisplayDate(currentUserData.accessStart) : "-";
-      const endFmt = currentUserData.accessEnd ? formatDisplayDate(currentUserData.accessEnd) : "";
-      document.getElementById('profileAccessWrap').innerHTML = endFmt ? (startFmt + " -<br>" + endFmt) : startFmt;
+      document.getElementById('profileAllowed').innerText = String(currentUserData.maxDevices || 0);
+      document.getElementById('profileLoggedIn').innerText = String((currentUserData.devices || []).length);
+      document.getElementById('profileStart').innerText = currentUserData.accessStart ? formatDisplayDate(currentUserData.accessStart) : "-";
+      document.getElementById('profileEnd').innerText = currentUserData.accessEnd ? formatDisplayDate(currentUserData.accessEnd) : "-";
 
       document.getElementById('userMenu').style.display = 'none';
       document.getElementById('profileModal').style.display = 'flex';
