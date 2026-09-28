@@ -639,6 +639,10 @@ function shareTmsLink() {
 
     function renderUserTable() {
       if (!latestUsersSnapshot) return;
+	  const todayStr = new Date().toISOString().split('T')[0];
+      function isActiveUser(u) {
+        return !!u.approved && !(u.accessEnd && todayStr > u.accessEnd);
+      }
       const snapshot = latestUsersSnapshot;
       const tbody = document.getElementById('userTableBody');
       const noUsersMsg = document.getElementById('noUsersMsg');
@@ -652,7 +656,7 @@ function shareTmsLink() {
 
       snapshot.forEach(function(doc) {
         const u = doc.data();
-        if (u.approved) {
+        if (isActiveUser(u)) {
           approvedCount++;
           totalLicenses += (u.maxDevices || 0);
           activeLicenses += ((u.devices || []).length);
@@ -690,7 +694,7 @@ function shareTmsLink() {
           if (!matches) return;
         } else {
           const wantApproved = (currentUserFilter === 'approved');
-          if (!!u.approved !== wantApproved) return;
+          if (isActiveUser(u) !== wantApproved) return;
         }
 
         visibleCount++;
@@ -699,7 +703,7 @@ function shareTmsLink() {
           '<td data-label="Name">' + (u.name || "") + '</td>' +
           '<td data-label="Phone">' + (u.phone || "") + '</td>' +
           '<td data-label="User ID">' + (u.userId || "") + '</td>' +
-          '<td data-label="Approved">' + (u.approved ? "Yes" : "No") + '</td>' +
+          '<td data-label="Approved">' + (isActiveUser(u) ? "Yes" : "No") + '</td>' +
           '<td data-label="Blocked">' + (u.blocked ? "Yes" : "No") + '</td>' +
           '<td data-label="Allowed"><input type="number" id="dev-' + id + '" value="' + (u.maxDevices || 1) + '"></td>' +
           '<td data-label="Logged in">' + ((u.devices || []).length) + '</td>' +
