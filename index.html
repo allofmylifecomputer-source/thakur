@@ -323,9 +323,9 @@
           <input type="text" id="signupPinConfirm" placeholder="Confirm PIN" maxlength="6" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
           <span onclick="togglePin('signupPinConfirm')" style="position:absolute; right:12px; top:12px; cursor:pointer;">👁</span>
         </div>
-        <button id="registerBtn" onclick="registerUser()" style="width:100%;">Register</button>
+                <button id="registerBtn" onclick="registerUser()" style="width:100%; font-size:20px;">Register</button>
         <p id="signupError" style="color:red; font-size:13px;"></p>
-        <p style="margin-top:10px; font-size:14px;"><a href="#" onclick="showLogin(); return false;">Back to Login</a></p>
+                <p style="margin-top:10px; font-size:20px; font-weight:bold;"><a href="#" onclick="showLogin(); return false;">Back to Login</a></p>
       </div>
     </div>
 
