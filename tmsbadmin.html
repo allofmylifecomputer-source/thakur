@@ -338,6 +338,7 @@
       <h3>Create New User</h3>
       <input type="text" id="newName" placeholder="Full Name">
       <input type="tel" id="newPhone" placeholder="10-digit Phone Number" maxlength="10">
+      <input type="text" id="newUserIdPreview" placeholder="User ID (auto)" readonly>
       <input type="text" id="newPin" placeholder="6-digit PIN" maxlength="6">
       <input type="number" id="newMaxDevices" placeholder="Max Devices" value="1">
       <input type="date" id="newStart">
@@ -404,6 +405,33 @@ const db = adminApp.firestore();
     }
 
     document.getElementById('newName').addEventListener('input', formatNameInputAdmin);
+	    function updateUserIdPreview() {
+      const nameParts = document.getElementById('newName').value.trim().split(/\s+/);
+      const phone = document.getElementById('newPhone').value.trim();
+      const box = document.getElementById('newUserIdPreview');
+      if (!nameParts[0] || !/^\d{10}$/.test(phone)) { box.value = ""; return; }
+
+      const firstName = nameParts[0].toLowerCase();
+      const candidates = [
+        firstName + phone.substring(6, 10),
+        firstName + phone.substring(0, 4),
+        firstName + phone.substring(0, 4) + phone.substring(9, 10)
+      ];
+
+      const taken = {};
+      if (latestUsersSnapshot) {
+        latestUsersSnapshot.forEach(function(d) { taken[d.id] = true; });
+      }
+
+      let found = "";
+      for (const c of candidates) {
+        if (!taken[c]) { found = c; break; }
+      }
+      box.value = found;
+    }
+
+    document.getElementById('newName').addEventListener('input', updateUserIdPreview);
+    document.getElementById('newPhone').addEventListener('input', updateUserIdPreview);
     let usersListener = null;
     let currentUserFilter = 'approved';
     let latestUsersSnapshot = null;
@@ -553,6 +581,7 @@ function shareTmsLink() {
         document.getElementById('newStart').value = "";
         document.getElementById('newEnd').value = "";
 		document.getElementById('userSearchBox').value = "";
+		document.getElementById('newUserIdPreview').value = "";
 		setUserFilter('approved');
         const fresh = await db.collection("tmsbusers").get();
         latestUsersSnapshot = fresh;
