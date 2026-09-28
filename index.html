@@ -749,21 +749,49 @@ function shareTmsLink() {
     function downloadProfilePdf() {
       if (!currentUserData) return;
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.setFontSize(18);
-      doc.text("TMS Library", 105, 20, { align: "center" });
-      doc.setFontSize(14);
-      doc.text("Name: " + (currentUserData.name || "-"), 20, 40);
-      doc.text("Phone No: " + (currentUserData.phone || "-"), 20, 50);
-      doc.text("No. of Devices: " + ((currentUserData.devices || []).length) + " / " + (currentUserData.maxDevices || 0), 20, 60);
-      doc.text("Access Period: " + (currentUserData.accessStart ? currentUserData.accessStart : "-") + " - " + (currentUserData.accessEnd ? currentUserData.accessEnd : "-"), 20, 70);
-      doc.setFontSize(12);
-      doc.text("Completely private library.", 105, 90, { align: "center" });
-      doc.text("Call:+91-9830894559", 105, 100, { align: "center" });
 
-      const timestamp = Date.now();
-      const filename = (currentUserData.userId || "user") + "_" + (currentUserData.phone || "phone") + "_" + timestamp + ".pdf";
-      doc.save(filename);
+      function buildPdf(logoDataUrl) {
+        const doc = new jsPDF();
+        let y = 20;
+
+        if (logoDataUrl) {
+          doc.addImage(logoDataUrl, 'PNG', 92, 15, 26, 26);
+          y = 55;
+        }
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(24);
+        doc.setTextColor(255, 140, 0);
+        doc.text("TMS Library", 105, y, { align: "center" });
+
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(14);
+        doc.text("Name: " + (currentUserData.name || "-"), 20, y + 20);
+        doc.text("Phone No: " + (currentUserData.phone || "-"), 20, y + 30);
+        doc.text("No. of Devices: " + ((currentUserData.devices || []).length) + " / " + (currentUserData.maxDevices || 0), 20, y + 40);
+        doc.text("Access Period: " + (currentUserData.accessStart ? currentUserData.accessStart : "-") + " - " + (currentUserData.accessEnd ? currentUserData.accessEnd : "-"), 20, y + 50);
+        doc.setFontSize(12);
+        doc.text("Completely private library.", 105, y + 70, { align: "center" });
+        doc.text("Call:+91-9830894559", 105, y + 80, { align: "center" });
+
+        const timestamp = Date.now();
+        const filename = (currentUserData.userId || "user") + "_" + (currentUserData.phone || "phone") + "_" + timestamp + ".pdf";
+        doc.save(filename);
+      }
+
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        buildPdf(canvas.toDataURL('image/png'));
+      };
+      img.onerror = function() {
+        buildPdf(null);
+      };
+      img.src = 'icon-192.png';
     }
 
         function tryInstantAuthDisplay() {
