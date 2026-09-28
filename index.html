@@ -502,8 +502,9 @@ const firebaseConfig = {
 	
 	    function formatNameInput() {
       const field = document.getElementById('signupName');
-      const cursorPos = field.selectionStart;
-      const before = field.value;
+      const rawValue = field.value;
+      const cursorPos = rawValue.slice(0, field.selectionStart).replace(/[^A-Za-z ]/g, '').length;
+      const before = rawValue.replace(/[^A-Za-z ]/g, '');
       field.value = before.replace(/\b\w/g, function(c) { return c.toUpperCase(); })
                            .replace(/\B\w/g, function(c) { return c.toLowerCase(); });
       field.setSelectionRange(cursorPos, cursorPos);
