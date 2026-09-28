@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TMS Admin</title>
+<link rel="manifest" href="manifest-admin.json">
+<meta name="theme-color" content="#FF8C00">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    max-width: 480px;
+    margin: 0 auto;
+    box-shadow: 0 0 25px rgba(0,0,0,0.15);
+    min-height: 100vh;
+  }
+
+  header {
+    background-color: #FF8C00;
+    color: #000000;
+    font-weight: bold;
+    text-align: center;
+    padding: 20px;
+    font-size: 24px;
+    position: relative;
+  }
+
+  #adminLoginBox {
+    max-width: 320px;
+    margin: 60px auto;
+    padding: 30px 25px;
+    border: 2px solid #FF8C00;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background: #fff;
+  }
+
+    #adminLoginBox h3 {
+    margin-bottom: 20px;
+    color: #FF8C00;
+    text-align: center;
+    font-size: 22px;
+  }
+
+  #adminLoginBox input {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 17px;
+  }
+
+  #adminLoginBox button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #FFFFFF;
+    background-color: #FF8C00;
+  }
+
+  #adminError { color: red; font-size: 16px; margin-top: 10px; text-align: center; }
+
+  #personBtn {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #FFFFFF;
+    border: none;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+
+  #userMenu {
+    position: absolute;
+    top: 62px;
+    right: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    overflow: hidden;
+    z-index: 1000;
+    min-width: 150px;
+    display: none;
+  }
+
+  .userMenuItem {
+    padding: 16px 20px;
+    font-size: 17px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+  }
+
+  .userMenuItem:hover { background: #FFF3E0; }
+
+  @media (max-width: 480px) {
+    #personBtn { right: 10px; width: 40px; height: 40px; }
+    .userMenuItem { font-size: 18px; padding: 16px; }
+  }
+
+  #panel { display: none; padding: 20px; max-width: 1000px; margin: 0 auto; }
+
+  #createUserBox {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 25px;
+  }
+
+  #createUserBox h3 { margin-bottom: 15px; color: #FF8C00; font-size: 20px; }
+
+  #statsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 25px;
+  }
+
+  .statCard {
+    background: #fff;
+    border: 2px solid #FF8C00;
+    border-radius: 10px;
+    padding: 18px 10px;
+    text-align: center;
+  }
+
+  .statCard .statNumber {
+    font-size: 32px;
+    font-weight: bold;
+    color: #FF8C00;
+  }
+
+  .statCard .statLabel {
+    font-size: 15px;
+    font-weight: bold;
+    color: #333;
+    margin-top: 5px;
+  }
+
+  .statCardActive {
+    background-color: #FFF3E0;
+    border-width: 3px;
+  }
+
+    #createUserBox input {
+    width: 100%;
+    padding: 14px;
+    margin: 6px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+  }
+
+  #createUserBox button {
+    width: 100%;
+    padding: 14px 18px;
+    border: none;
+    border-radius: 8px;
+    background-color: #4CAF50;
+    color: #fff;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+    table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    font-size: 15px;
+  }
+
+  th, td {
+    border: 1px solid #ddd;
+    padding: 14px;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  th { background-color: #FF8C00; color: #000; }
+
+    td input {
+    width: 100%;
+    max-width: 140px;
+    padding: 10px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+
+  td input[type="date"] {
+    max-width: 100%;
+  }
+
+  .btnSmall {
+    padding: 12px 14px;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 15px;
+    margin: 4px 0;
+  }
+
+  .approve { background-color: #4CAF50; }
+  .block { background-color: #e53935; }
+  .unblock { background-color: #757575; }
+  .reset { background-color: #1e88e5; }
+  .save { background-color: #FF8C00; }
+  .delete { background-color: #000000; }
+
+    table, thead, tbody, th, td, tr { display: block; }
+    th { display: none; }
+    td {
+      border: none;
+      border-bottom: 1px solid #eee;
+      position: relative;
+      padding: 14px 14px 14px 45%;
+      font-size: 15px;
+    }
+    td::before {
+      content: attr(data-label);
+      position: absolute;
+      left: 10px;
+      font-weight: bold;
+      color: #FF8C00;
+    }
+    tr { border: 1px solid #ddd; margin-bottom: 12px; border-radius: 8px; overflow: hidden; }
+    td[data-label="Actions"] {
+      padding-left: 14px;
+    }
+    td[data-label="Actions"] .btnSmall {
+      display: block;
+      width: 100%;
+      margin: 6px 0;
+      padding: 14px;
+      font-size: 16px;
+    }
+
+    header { font-size: 26px; padding: 22px; }
+    #adminLoginBox h3 { font-size: 24px; }
+    #adminLoginBox input { font-size: 18px; padding: 16px; }
+    #adminLoginBox button { font-size: 18px; padding: 16px; }
+    #createUserBox h3 { font-size: 22px; }
+    #createUserBox input { font-size: 18px; padding: 16px; }
+    #createUserBox button { font-size: 18px; padding: 16px; }
+    .statCard .statNumber { font-size: 34px; }
+    .statCard .statLabel { font-size: 16px; }
+    table { font-size: 17px; }
+    td { font-size: 17px; }
+    td input { font-size: 17px; padding: 12px; }
+    .btnSmall { font-size: 17px; padding: 16px; }
+    #rotationBox h3 { font-size: 22px; }
+    #rotationBox label { font-size: 18px; }
+    #rotationBox select { font-size: 18px; padding: 14px; }
+  
+</style>
+</head>
+<body>
+
+  <header>
+    TMS Admin
+    <button id="personBtn" onclick="toggleAdminUserMenu()" style="display:none;">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="#FF8C00"><circle cx="12" cy="8" r="4.2"/><path d="M4.5 20c0-4.4 3.8-6.5 7.5-6.5s7.5 2.1 7.5 6.5"/></svg>
+    </button>
+<div id="userMenu">
+  <div class="userMenuItem" onclick="shareTmsLink()">Share Link</div>
+  <div class="userMenuItem" onclick="adminLogout()">Logout</div>
+</div>
+  </header>
+
+  <div id="adminLoginBox">
+    <h3>Admin Login</h3>
+    <input type="email" id="adminEmail" placeholder="Admin Email">
+    <input type="password" id="adminPassword" placeholder="Admin Password">
+    <button onclick="adminLogin()">Login</button>
+    <p id="adminError"></p>
+  </div>
+
+  <button id="installAdminBtn" style="display:none; width:90%; max-width:320px; margin:20px auto; padding:18px; background-color:#FF8C00; color:#fff; border:none; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer;">Install TMS Admin App</button>
+  
+  <div id="panel">
+    <input type="text" id="userSearchBox" placeholder="Search by Name, Phone or User ID" oninput="renderUserTable()" style="width:100%; padding:14px; margin-bottom:20px; border:2px solid #FF8C00; border-radius:8px; font-size:16px;">
+
+    <div id="rotationBox" style="background:#fff; border:2px solid #FF8C00; border-radius:10px; padding:20px; margin-bottom:25px;">
+      <h3 style="color:#FF8C00; margin-bottom:15px; font-size:20px;">Set Quote Rotation Timing</h3>
+
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:140px;">
+          <label style="font-size:16px;"><b>TMS Quote:</b></label><br>
+          <select id="rotation-tmsquote" style="padding:12px; margin-top:5px; font-size:16px; width:100%;"></select>
+          <button class="btnSmall save" onclick="saveRotation('tmsquote', 'rotation-tmsquote')" style="width:100%;">Save</button>
+        </div>
+
+<div style="flex:1; min-width:140px;">
+  <label style="font-size:16px;"><b>Ramthakur Bani:</b></label><br>
+  <select id="rotation-page2" style="padding:12px; margin-top:5px; font-size:16px; width:100%;"></select>
+  <button class="btnSmall save" onclick="saveRotation('page2', 'rotation-page2')" style="width:100%;">Save</button>
+</div>
+      </div>
+
+      <p id="rotationStatus" style="color:green; font-weight:bold; margin-top:10px; font-size:16px;"></p>
+    </div>
+
+    <div id="statsGrid">
+      <div class="statCard statCardActive" id="cardApproved" onclick="setUserFilter('approved')" style="cursor:pointer;"><div class="statNumber" id="statApproved">0</div><div class="statLabel">Approved Users</div></div>
+      <div class="statCard" id="cardPending" onclick="setUserFilter('pending')" style="cursor:pointer;"><div class="statNumber" id="statPending">0</div><div class="statLabel">Pending Users</div></div>
+      <div class="statCard"><div class="statNumber" id="statTotalLic">0</div><div class="statLabel">Total Licenses</div></div>
+      <div class="statCard"><div class="statNumber" id="statActiveLic">0</div><div class="statLabel">Active Licenses</div></div>
+      <div class="statCard"><div class="statNumber" id="statInactiveLic">0</div><div class="statLabel">Inactive Licenses</div></div>
+      <div class="statCard"><div class="statNumber" id="statBlocked">0</div><div class="statLabel">Blocked Users</div></div>
+    </div>
+
+    <div id="createUserBox">
+      <h3>Create New User</h3>
+      <input type="text" id="newName" placeholder="Full Name">
+      <input type="tel" id="newPhone" placeholder="10-digit Phone Number" maxlength="10">
+      <input type="text" id="newPin" placeholder="6-digit PIN" maxlength="6">
+      <input type="number" id="newMaxDevices" placeholder="Max Devices" value="1">
+      <input type="date" id="newStart">
+      <input type="date" id="newEnd">
+      <br>
+      <button onclick="createUser()">Create &amp; Approve User</button>
+      <p id="createError" style="color:red; font-size:16px;"></p>
+    </div>
+
+    <p id="noUsersMsg" style="display:none; text-align:center; font-size:18px; font-weight:bold; color:#777; padding:20px;"></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>User ID</th>
+          <th>Approved</th>
+          <th>Blocked</th>
+          <th>Max Devices</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="userTableBody">
+      </tbody>
+    </table>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDuuW3QUEYB15CEAh0PgTArLdL21LhtA7g",
+      authDomain: "tmsb-online-library-4eaa6.firebaseapp.com",
+      projectId: "tmsb-online-library-4eaa6",
+      storageBucket: "tmsb-online-library-4eaa6.firebasestorage.app",
+      messagingSenderId: "133113941862",
+      appId: "1:133113941862:web:01ecc4e679dbc3c27d02a7"
+    };
+
+const adminApp = firebase.initializeApp(firebaseConfig, "TMSAdminApp");
+const auth = adminApp.auth();
+const db = adminApp.firestore();
+
+        const ADMIN_EMAIL = "tmsadmin@tms-library.in";
+
+    function toTitleCaseAdmin(str) {
+      return str.trim().toLowerCase().split(' ')
+        .filter(function(w) { return w.length > 0; })
+        .map(function(w) { return w.charAt(0).toUpperCase() + w.slice(1); })
+        .join(' ');
+    }
+
+    function formatNameInputAdmin() {
+      const field = document.getElementById('newName');
+      const cursorPos = field.selectionStart;
+      field.value = field.value.replace(/\b\w/g, function(c) { return c.toUpperCase(); })
+                                .replace(/\B\w/g, function(c) { return c.toLowerCase(); });
+      field.setSelectionRange(cursorPos, cursorPos);
+    }
+
+    document.getElementById('newName').addEventListener('input', formatNameInputAdmin);
+    let usersListener = null;
+    let currentUserFilter = 'approved';
+    let latestUsersSnapshot = null;
+
+    function setUserFilter(filter) {
+      currentUserFilter = filter;
+      document.getElementById('cardApproved').classList.toggle('statCardActive', filter === 'approved');
+      document.getElementById('cardPending').classList.toggle('statCardActive', filter === 'pending');
+      renderUserTable();
+    }
+
+function shareTmsLink() {
+  const shareUrl = 'https://tmsb-maa.github.io/thakur/';
+  document.getElementById('userMenu').style.display = 'none';
+
+  if (navigator.share) {
+    navigator.share({ title: 'TMS Library', url: shareUrl }).catch(function() {});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(shareUrl).then(function() {
+      alert('Link copied: ' + shareUrl);
+    }).catch(function() {
+      prompt('Copy this link:', shareUrl);
+    });
+  } else {
+    prompt('Copy this link:', shareUrl);
+  }
+}
+
+    function adminLogout() {
+      if (usersListener) {
+        usersListener();
+        usersListener = null;
+      }
+      auth.signOut();
+    }
+
+    function adminLogin() {
+      const email = document.getElementById('adminEmail').value;
+      const password = document.getElementById('adminPassword').value;
+      auth.signInWithEmailAndPassword(email, password)
+        .then(function(cred) {
+          if (cred.user.email !== ADMIN_EMAIL) {
+            document.getElementById('adminError').innerText = "Not authorized as admin.";
+            auth.signOut();
+          }
+        })
+        .catch(function(error) {
+          document.getElementById('adminError').innerText = error.message;
+        });
+    }
+
+    auth.onAuthStateChanged(function(user) {
+            if (user && user.email === ADMIN_EMAIL) {
+        document.getElementById('adminLoginBox').style.display = 'none';
+        document.getElementById('panel').style.display = 'block';
+        document.getElementById('personBtn').style.display = 'flex';
+        populateRotationDropdowns();
+        loadRotationSettings();
+        loadUsers();
+      } else {
+        document.getElementById('adminLoginBox').style.display = 'block';
+        document.getElementById('panel').style.display = 'none';
+        document.getElementById('personBtn').style.display = 'none';
+        document.getElementById('userMenu').style.display = 'none';
+      }
+    });
+
+    function toggleAdminUserMenu() {
+      const menu = document.getElementById('userMenu');
+      menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+    }
+
+    document.addEventListener('click', function(e) {
+      const menu = document.getElementById('userMenu');
+      const btn = document.getElementById('personBtn');
+      if (menu.style.display === 'block' && !menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.style.display = 'none';
+      }
+    });
+
+    async function sha256(text) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function createUser() {
+      const rawName = document.getElementById('newName').value.trim();
+      const phone = document.getElementById('newPhone').value.trim();
+      const pin = document.getElementById('newPin').value.trim();
+      const maxDevices = parseInt(document.getElementById('newMaxDevices').value) || 1;
+      const start = document.getElementById('newStart').value;
+      const end = document.getElementById('newEnd').value;
+      const errorBox = document.getElementById('createError');
+      errorBox.innerText = "";
+
+      const nameParts = rawName.split(/\s+/);
+      if (!/^[A-Za-z\s]+$/.test(rawName) || nameParts.length < 2) {
+        errorBox.innerText = "Please enter full name (first and last name).";
+        return;
+      }
+      if (!/^\d{10}$/.test(phone)) {
+        errorBox.innerText = "Phone number must be exactly 10 digits.";
+        return;
+      }
+      if (!/^\d{6}$/.test(pin)) {
+        errorBox.innerText = "PIN must be exactly 6 digits.";
+        return;
+      }
+
+      const firstName = nameParts[0].toLowerCase();
+      const candidates = [
+        firstName + phone.substring(6, 10),
+        firstName + phone.substring(0, 4),
+        firstName + phone.substring(0, 4) + phone.substring(9, 10)
+      ];
+
+      try {
+        let userId = null;
+        for (const candidate of candidates) {
+          const snap = await db.collection("tmsbusers").doc(candidate).get();
+          if (!snap.exists) { userId = candidate; break; }
+        }
+        if (!userId) {
+          errorBox.innerText = "Could not generate a unique User ID for this user.";
+          return;
+        }
+
+        await db.collection("tmsbusers").doc(userId).set({
+          name: toTitleCaseAdmin(rawName),
+          phone: phone,
+          userId: userId,
+          pinHash: await sha256(pin),
+          approved: true,
+          approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          blocked: false,
+          maxDevices: maxDevices,
+          accessStart: start,
+          accessEnd: end,
+          sessionVersion: 0,
+          devices: []
+        });
+
+        document.getElementById('newName').value = "";
+        document.getElementById('newPhone').value = "";
+        document.getElementById('newPin').value = "";
+        document.getElementById('newMaxDevices').value = "1";
+        document.getElementById('newStart').value = "";
+        document.getElementById('newEnd').value = "";
+      } catch (error) {
+        errorBox.innerText = error.message;
+      }
+    }
+
+    function populateRotationDropdowns() {
+      const validHours = [1, 2, 3, 4, 6, 8, 12, 24];
+      const ids = ['rotation-tmsquote', 'rotation-page2'];
+      ids.forEach(function(id) {
+        const select = document.getElementById(id);
+        select.innerHTML = '';
+        validHours.forEach(function(h) {
+          const opt = document.createElement('option');
+          opt.value = h;
+          opt.text = h + ' hr';
+          select.appendChild(opt);
+        });
+      });
+    }
+
+    function loadRotationSettings() {
+      db.collection("settings").doc("quoteSettings").get().then(function(doc) {
+        const data = doc.exists ? doc.data() : {};
+        if (data.tmsquote) document.getElementById('rotation-tmsquote').value = data.tmsquote;
+        if (data.page2) document.getElementById('rotation-page2').value = data.page2;
+      });
+    }
+
+    function saveRotation(fieldKey, selectId) {
+      const value = parseInt(document.getElementById(selectId).value);
+      const update = {};
+      update[fieldKey] = value;
+      db.collection("settings").doc("quoteSettings").set(update, { merge: true })
+        .then(function() {
+          const status = document.getElementById('rotationStatus');
+          status.innerText = 'Saved! New timing is effective immediately.';
+          setTimeout(function() { status.innerText = ''; }, 4000);
+        });
+    }
+	
+    // ---- LOAD USERS ----
+    // ---- LOAD USERS ----
+    function loadUsers() {
+      usersListener = db.collection("tmsbusers").onSnapshot(function(snapshot) {
+        latestUsersSnapshot = snapshot;
+        renderUserTable();
+      });
+    }
+
+    function renderUserTable() {
+      if (!latestUsersSnapshot) return;
+      const snapshot = latestUsersSnapshot;
+      const tbody = document.getElementById('userTableBody');
+      const noUsersMsg = document.getElementById('noUsersMsg');
+      tbody.innerHTML = "";
+
+      let approvedCount = 0;
+      let pendingCount = 0;
+      let blockedCount = 0;
+      let totalLicenses = 0;
+      let activeLicenses = 0;
+
+      snapshot.forEach(function(doc) {
+        const u = doc.data();
+        if (u.approved) {
+          approvedCount++;
+          totalLicenses += (u.maxDevices || 0);
+          activeLicenses += ((u.devices || []).length);
+        } else {
+          pendingCount++;
+        }
+        if (u.blocked) blockedCount++;
+      });
+
+      document.getElementById('statApproved').innerText = approvedCount;
+      document.getElementById('statPending').innerText = pendingCount;
+      document.getElementById('statTotalLic').innerText = totalLicenses;
+      document.getElementById('statActiveLic').innerText = activeLicenses;
+      document.getElementById('statInactiveLic').innerText = (totalLicenses - activeLicenses);
+      document.getElementById('statBlocked').innerText = blockedCount;
+
+      let visibleCount = 0;
+      const searchBox = document.getElementById('userSearchBox');
+      const searchTerm = searchBox ? searchBox.value.trim().toLowerCase() : '';
+
+      snapshot.forEach(function(doc) {
+        const u = doc.data();
+        const id = doc.id;
+
+        if (searchTerm) {
+          const matches = (u.name || '').toLowerCase().indexOf(searchTerm) !== -1 ||
+                           (u.phone || '').toLowerCase().indexOf(searchTerm) !== -1 ||
+                           (u.userId || '').toLowerCase().indexOf(searchTerm) !== -1;
+          if (!matches) return;
+        } else {
+          const wantApproved = (currentUserFilter === 'approved');
+          if (!!u.approved !== wantApproved) return;
+        }
+
+        visibleCount++;
+        const row = document.createElement('tr');
+        row.innerHTML =
+          '<td data-label="Name">' + (u.name || "") + '</td>' +
+          '<td data-label="Phone">' + (u.phone || "") + '</td>' +
+          '<td data-label="User ID">' + (u.userId || "") + '</td>' +
+          '<td data-label="Approved">' + (u.approved ? "Yes" : "No") + '</td>' +
+          '<td data-label="Blocked">' + (u.blocked ? "Yes" : "No") + '</td>' +
+          '<td data-label="Allowed"><input type="number" id="dev-' + id + '" value="' + (u.maxDevices || 1) + '"></td>' +
+          '<td data-label="Logged in">' + ((u.devices || []).length) + '</td>' +
+          '<td data-label="Start"><input type="date" id="start-' + id + '" value="' + (u.accessStart || '') + '"></td>' +
+          '<td data-label="End"><input type="date" id="end-' + id + '" value="' + (u.accessEnd || '') + '"></td>' +
+          '<td data-label="Actions">' +
+          '<button class="btnSmall save" onclick="saveUser(\'' + id + '\')">Save</button>' +
+          '<button class="btnSmall approve" onclick="setApproved(\'' + id + '\', true)"' + (u.approved ? ' disabled style="opacity:0.5; cursor:not-allowed;"' : '') + '>Approve</button>' +
+          '<button class="btnSmall block" onclick="setApproved(\'' + id + '\', false)"' + (!u.approved ? ' disabled style="opacity:0.5; cursor:not-allowed;"' : '') + '>Disapprove</button>' +
+          '<button class="btnSmall block" onclick="setBlocked(\'' + id + '\', true)"' + (u.blocked ? ' disabled style="opacity:0.5; cursor:not-allowed;"' : '') + '>Block</button>' +
+          '<button class="btnSmall unblock" onclick="setBlocked(\'' + id + '\', false)"' + (!u.blocked ? ' disabled style="opacity:0.5; cursor:not-allowed;"' : '') + '>Unblock</button>' +
+          '<button class="btnSmall reset" onclick="resetPin(\'' + id + '\')">Reset PIN</button>' +
+          '<button class="btnSmall block" onclick="forceLogout(\'' + id + '\')">Force Logout</button>' +
+          '<button class="btnSmall delete" onclick="deleteUser(\'' + id + '\')">Delete</button>' +
+          '</td>';
+        tbody.appendChild(row);
+      });
+
+      if (visibleCount === 0) {
+        if (searchTerm) {
+          noUsersMsg.innerText = "No matching user found";
+        } else {
+          noUsersMsg.innerText = (currentUserFilter === 'pending') ? "No Pending User(s)" : "No Approved User(s)";
+        }
+        noUsersMsg.style.display = 'block';
+      } else {
+        noUsersMsg.style.display = 'none';
+      }
+    }
+
+    function saveUser(id) {
+      const maxDevices = parseInt(document.getElementById('dev-' + id).value) || 1;
+      const start = document.getElementById('start-' + id).value;
+      const end = document.getElementById('end-' + id).value;
+      db.collection("tmsbusers").doc(id).update({
+        maxDevices: maxDevices,
+        accessStart: start,
+        accessEnd: end
+      });
+    }
+
+    function setApproved(id, value) {
+      if (!value) {
+        db.collection("tmsbusers").doc(id).update({ approved: false });
+        return;
+      }
+      db.collection("tmsbusers").doc(id).get().then(function(doc) {
+        const data = doc.data() || {};
+        const update = { approved: true };
+        if (!data.approvedAt) {
+          update.approvedAt = firebase.firestore.FieldValue.serverTimestamp();
+        }
+        db.collection("tmsbusers").doc(id).update(update);
+      });
+    }
+
+    function setBlocked(id, value) {
+      db.collection("tmsbusers").doc(id).update({ blocked: value });
+    }
+
+    function forceLogout(id) {
+      if (confirm("Force logout this user from ALL devices and clear registered devices?")) {
+        db.collection("tmsbusers").doc(id).update({
+          sessionVersion: firebase.firestore.FieldValue.increment(1),
+          devices: []
+        });
+      }
+    }
+
+    async function resetPin(id) {
+      if (!confirm("Change to default PIN 123456?")) return;
+      try {
+        await db.collection("tmsbusers").doc(id).update({
+          pinHash: await sha256("123456"),
+          sessionVersion: firebase.firestore.FieldValue.increment(1),
+          devices: []
+        });
+        alert("PIN changed to default 123456.");
+      } catch (e) {
+        alert("Something went wrong. Please try again.");
+      }
+    }
+
+    function deleteUser(id) {
+      if (confirm("Delete this user's access record?")) {
+        db.collection("tmsbusers").doc(id).delete();
+      }
+    }
+
+    let deferredAdminInstallPrompt = null;
+    const installAdminBtn = document.getElementById('installAdminBtn');
+
+    function isAdminPwaInstalled() {
+      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredAdminInstallPrompt = e;
+      setTimeout(function() {
+        if (!isAdminPwaInstalled()) {
+          installAdminBtn.style.display = 'block';
+        }
+      }, 2000);
+    });
+
+    installAdminBtn.addEventListener('click', function() {
+      if (!deferredAdminInstallPrompt) return;
+      deferredAdminInstallPrompt.prompt();
+      deferredAdminInstallPrompt.userChoice.then(function() {
+        deferredAdminInstallPrompt = null;
+        installAdminBtn.style.display = 'none';
+      });
+    });
+
+    window.addEventListener('appinstalled', function() {
+      installAdminBtn.style.display = 'none';
+    });
+
+  </script>
+
+</body>
+</html>
