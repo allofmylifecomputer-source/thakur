@@ -643,7 +643,13 @@ function shareTmsLink() {
       const searchBox = document.getElementById('userSearchBox');
       const searchTerm = searchBox ? searchBox.value.trim().toLowerCase() : '';
 
-      snapshot.forEach(function(doc) {
+      const sortedDocs = snapshot.docs.slice().sort(function(a, b) {
+        const nameA = (a.data().name || '').toLowerCase();
+        const nameB = (b.data().name || '').toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+
+      sortedDocs.forEach(function(doc) {
         const u = doc.data();
         const id = doc.id;
 
