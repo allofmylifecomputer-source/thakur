@@ -759,21 +759,53 @@ function shareTmsLink() {
           y = 55;
         }
 
+        // Headline
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(24);
+        doc.setFontSize(26);
         doc.setTextColor(255, 140, 0);
         doc.text("TMS Library", 105, y, { align: "center" });
 
-        doc.setFont("helvetica", "normal");
+        // Two columns: field names (left) and values (right)
+        const labelX = 20;
+        const lineX = 78;
+        const valueX = 84;
+        const rowGap = 12;
+        const firstRowY = y + 22;
+
+        const rows = [
+          ["Name", currentUserData.name || "-"],
+          ["Phone", currentUserData.phone || "-"],
+          ["Allowed Devices", String(currentUserData.maxDevices || 0)],
+          ["Logged in", String((currentUserData.devices || []).length)],
+          ["Access Start", currentUserData.accessStart ? formatDisplayDate(currentUserData.accessStart) : "-"],
+          ["Access End", currentUserData.accessEnd ? formatDisplayDate(currentUserData.accessEnd) : "-"]
+        ];
+
+        doc.setFontSize(16);
         doc.setTextColor(0, 0, 0);
+        let rowY = firstRowY;
+        rows.forEach(function(r) {
+          doc.setFont("helvetica", "bold");
+          doc.text(r[0], labelX, rowY);
+          doc.setFont("helvetica", "normal");
+          doc.text(r[1], valueX, rowY);
+          rowY += rowGap;
+        });
+
+        // Vertical line between the two columns
+        doc.setDrawColor(255, 140, 0);
+        doc.setLineWidth(0.6);
+        doc.line(lineX, firstRowY - 8, lineX, rowY - rowGap + 4);
+
+        // Footer: 4 lines gap, then centered text
+        let fy = rowY + 28;
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(14);
-        doc.text("Name: " + (currentUserData.name || "-"), 20, y + 20);
-        doc.text("Phone No: " + (currentUserData.phone || "-"), 20, y + 30);
-        doc.text("No. of Devices: " + ((currentUserData.devices || []).length) + " / " + (currentUserData.maxDevices || 0), 20, y + 40);
-        doc.text("Access Period: " + (currentUserData.accessStart ? currentUserData.accessStart : "-") + " - " + (currentUserData.accessEnd ? currentUserData.accessEnd : "-"), 20, y + 50);
-        doc.setFontSize(12);
-        doc.text("Completely private library.", 105, y + 70, { align: "center" });
-        doc.text("Call:+91-9830894559", 105, y + 80, { align: "center" });
+        doc.text("Completely private library.", 105, fy, { align: "center" });
+        fy += 14;
+        doc.text("Call / Whatsapp : Biswajit : +91-9830894559", 105, fy, { align: "center" });
+        fy += 14;
+        doc.text("Thanks.", 105, fy, { align: "center" });
 
         const timestamp = Date.now();
         const filename = (currentUserData.userId || "user") + "_" + (currentUserData.phone || "phone") + "_" + timestamp + ".pdf";
