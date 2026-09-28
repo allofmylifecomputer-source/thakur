@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TMS Library</title>
+<meta property="og:title" content="TMS Library">
+<meta property="og:description" content="Completely private library.">
+<meta property="og:image" content="https://tmsb-maa.github.io/thakur/icon-512.png">
+<meta property="og:url" content="https://tmsb-maa.github.io/thakur/">
+<meta property="og:type" content="website">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#FF8C00">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
+
+  header, footer {
+    background-color: #FF8C00;
+    color: #000000;
+    font-weight: bold;
+    text-align: center;
+    padding: 20px;
+    font-size: 20px;
+  }
+  
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+  }
+
+  #backBtn {
+    background: none;
+    border: none;
+    color: #000000;
+    font-size: 26px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0 10px;
+  }
+
+  #headerTitle {
+    flex: 1;
+    text-align: center;
+    font-size: 22px;
+  }
+  
+  main {
+    position: relative;
+    flex: 1;
+    background-color: #FFFFFF;
+    padding: 30px;
+    text-align: center;
+  }
+
+  #authBox {
+    max-width: 320px;
+    margin: 60px auto;
+    padding: 30px 25px;
+    border: 2px solid #FF8C00;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  #authBox h3 {
+    margin-bottom: 20px;
+    color: #FF8C00;
+    font-size: 20px;
+  }
+
+  #authBox input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+  }
+
+  #authBox input:focus {
+    outline: none;
+    border-color: #FF8C00;
+  }
+
+  #authBox button {
+    width: 48%;
+    padding: 12px;
+    margin: 5px 1%;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #FFFFFF;
+    background-color: #FF8C00;
+  }
+
+  #authBox button:hover {
+    background-color: #e67c00;
+  }
+
+  #authError {
+    margin-top: 10px;
+    font-size: 13px;
+    color: red;
+  }
+
+  #personBtn, #barContainer, #authBox {
+    display: none;
+  }
+
+  #checkingMsg {
+    text-align: center;
+    font-size: 16px;
+    color: #FF8C00;
+    font-weight: bold;
+    margin-top: 60px;
+  }
+
+  .barContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+  }
+
+  .bar {
+    width: 100%;
+    color: #FFFFFF;
+    font-weight: bold;
+    font-size: 22px;
+    padding: 18px 0;
+    margin-bottom: 20px;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .barBengali {
+    display: block;
+    font-size: 22px;
+    font-weight: normal;
+    margin-top: 4px;
+  }
+
+  main h2 {
+    font-size: 22px;
+    padding: 0 10px;
+    margin-bottom: 20px;
+  }
+
+  #personBtn {
+    background-color: #FFFFFF;
+    border: none;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+
+  #userMenu {
+    position: absolute;
+    top: 62px;
+    right: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    overflow: hidden;
+    z-index: 1000;
+    min-width: 180px;
+    display: none;
+  }
+
+  .userMenuItem {
+    padding: 16px 20px;
+    font-size: 17px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+  }
+
+  .userMenuItem:last-child { border-bottom: none; }
+  .userMenuItem:hover { background: #FFF3E0; }
+
+  .tmsModal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.55);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tmsModalBox {
+    background: #fff;
+    border-radius: 12px;
+    padding: 30px 25px;
+    max-width: 340px;
+    width: 90%;
+    text-align: center;
+  }
+
+  #profileModal .tmsModalBox, #signupResultModal .tmsModalBox {
+    max-width: 100%;
+    width: 100%;
+    padding: 30px 20px;
+    text-align: left;
+  }
+
+  #signupResultModal .tmsModalBox {
+    padding-left: 40px;
+    padding-right: 30px;
+  }
+
+  #profileModal .tmsModalLogo, #signupResultModal .tmsModalLogo {
+    display: block;
+    margin: 0 auto 15px auto;
+    width: 64px;
+    height: 64px;
+  }
+
+#profileModal .tmsCenterLine, #signupResultModal .tmsCenterLine {
+    text-align: center;
+}
+
+    @media (max-width: 480px) {
+    #headerTitle { font-size: 22px; }
+    #logoutBtn {
+      width: 34px;
+      height: 34px;
+      font-size: 17px;
+    }
+    #authBox {
+      max-width: 100%;
+      width: 100%;
+      margin: 30px auto;
+      padding: 20px 15px;
+    }
+    #authBox h3 { font-size: 22px; }
+    #authBox input {
+      font-size: 17px;
+      padding: 14px;
+    }
+    #authBox button {
+      width: 100%;
+      margin: 5px 0;
+      font-size: 17px;
+    }
+    #signupPrompt { font-size: 18px; }
+    .bar {
+      font-size: 21px;
+      padding: 18px 0;
+      font-weight: 700;
+    }
+    .barBengali { font-size: 24px; }
+    footer p { font-size: 19px; }
+    #personBtn { width: 40px; height: 40px; }
+    .userMenuItem { font-size: 18px; padding: 16px; }
+    .tmsModalBox { max-width: 92%; padding: 25px 20px; }
+    .tmsModalBox h2, .tmsModalBox h3 { font-size: 22px; }
+    .tmsModalBox p { font-size: 17px; }
+  }
+  
+</style>
+</head>
+<body>
+
+<header>
+    <button id="backBtn" onclick="history.back()" style="display:none;">&#8592;</button>
+    <h1 id="headerTitle">TMS Library</h1>
+    <button id="personBtn" onclick="toggleUserMenu()">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="#FF8C00"><circle cx="12" cy="8" r="4.2"/><path d="M4.5 20c0-4.4 3.8-6.5 7.5-6.5s7.5 2.1 7.5 6.5"/></svg>
+    </button>
+    <div id="userMenu">
+      <div class="userMenuItem" onclick="openProfile()">Profile</div>
+      <div class="userMenuItem" onclick="openChangePin()">Change PIN</div>
+      <div class="userMenuItem" onclick="shareTmsLink()">Share Link</div>
+	  <div class="userMenuItem" onclick="logoutUser()">Logout</div>
+    </div>
+  </header>
+
+  <main>
+
+    <p id="checkingMsg">Checking access...</p>
+
+    <div id="authBox">
+      <h3 id="authTitle">Login</h3>
+
+      <div id="loginFields">
+        <input type="text" id="userIdInput" placeholder="User ID" autocapitalize="none" autocorrect="off" spellcheck="false" oninput="this.value = this.value.toLowerCase()">
+        <input type="password" id="passwordInput" placeholder="6-digit PIN" inputmode="numeric" pattern="[0-9]*" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        <button onclick="loginUser()">Login</button>
+      </div>
+
+      <p id="signupPrompt" style="margin-top:15px; font-size:18px; font-weight:bold;">New user? <a href="#" onclick="showSignup(); return false;" style="color:#FF8C00; text-decoration:underline;">Sign up here</a></p>
+
+      <p id="authError"></p>
+
+      <div id="signupBox" style="display:none; margin-top:20px; border-top:1px solid #eee; padding-top:20px;">
+        <h3>Create Account</h3>
+        <input type="text" id="signupName" placeholder="Full Name (সম্পূর্ণ নাম)">
+        <input type="tel" id="signupPhone" placeholder="10-digit Phone No." maxlength="10" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        <div style="position:relative;">
+          <input type="text" id="signupPin" placeholder="6-digit PIN" maxlength="6" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+          <span onclick="togglePin('signupPin')" style="position:absolute; right:12px; top:12px; cursor:pointer;">👁</span>
+        </div>
+        <div style="position:relative;">
+          <input type="text" id="signupPinConfirm" placeholder="Confirm PIN" maxlength="6" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+          <span onclick="togglePin('signupPinConfirm')" style="position:absolute; right:12px; top:12px; cursor:pointer;">👁</span>
+        </div>
+        <button id="registerBtn" onclick="registerUser()" style="width:100%;">Register</button>
+        <p id="signupError" style="color:red; font-size:13px;"></p>
+        <p style="margin-top:10px; font-size:14px;"><a href="#" onclick="showLogin(); return false;">Back to Login</a></p>
+      </div>
+    </div>
+
+    <button id="installPwaBtn" style="display:none; width:100%; max-width:320px; margin:20px auto 0 auto; padding:18px; background-color:#FF8C00; color:#fff; border:none; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer;">Install PWA</button>
+
+<div class="barContainer" id="barContainer">
+  <div class="bar" style="background-color:#64BA88;" onclick="window.location.href='quoteoftheday.html'">Quotes / Advisories<span class="barBengali">বাণী / উপদেশাবলী</span></div>
+  <div class="bar" style="background-color:#45A3C2;" onclick="window.location.href='spiritualprayers.html'">Spiritual Prayers<span class="barBengali">আধ্যাত্মিক প্রার্থনাসমূহ</span></div>
+  <div class="bar" style="background-color:#C2A13D;" onclick="window.location.href='panchalimantratarpon.html'">Panchali / Mantras / Tarpon<span class="barBengali">পাঁচালী / মন্ত্র / তর্পণ</span></div>
+  <div class="bar" style="background-color:#D44E4E;" onclick="window.location.href='hinduceremonies.html'">Hindu Ceremonies<span class="barBengali">হিন্দু পূজা/আচার সময়সূচী</span></div>
+  <div class="bar" style="background-color:#B873E7;" onclick="window.location.href='hindugodphotos.html'">Photos of Hindu Goddess<span class="barBengali">হিন্দু দেবদেবীর ছবি</span></div>
+</div>
+
+    <div class="tmsModal" id="changePinModal">
+      <div class="tmsModalBox">
+        <h3 style="color:#FF8C00; font-size:22px; margin-bottom:20px;">Change PIN</h3>
+        <input type="text" id="newPinInput" placeholder="New PIN" maxlength="6" style="width:100%; padding:14px; margin-bottom:15px; border:1px solid #ccc; border-radius:8px; font-size:17px;">
+        <input type="text" id="confirmPinInput" placeholder="Confirm PIN" maxlength="6" style="width:100%; padding:14px; margin-bottom:15px; border:1px solid #ccc; border-radius:8px; font-size:17px;">
+        <p id="changePinError" style="color:red; font-size:15px; margin-bottom:10px;"></p>
+        <button onclick="submitChangePin()" style="width:100%; padding:14px; background:#FF8C00; color:#fff; border:none; border-radius:8px; font-size:17px; font-weight:bold; cursor:pointer; margin-bottom:10px;">Submit</button>
+        <button onclick="closeChangePin()" style="width:100%; padding:14px; background:#ccc; color:#333; border:none; border-radius:8px; font-size:17px; font-weight:bold; cursor:pointer;">Cancel</button>
+      </div>
+    </div>
+
+    <div class="tmsModal" id="profileModal">
+      <div class="tmsModalBox">
+        <img src="icon-192.png" alt="TMS Library" class="tmsModalLogo">
+        <h2 class="tmsCenterLine" style="color:#FF8C00; font-size:24px; font-weight:bold; margin-bottom:20px;">TMS Library</h2>
+        <p style="font-size:18px; font-weight:bold; margin-bottom:10px;">Name: <span id="profileName"></span></p>
+        <p style="font-size:18px; font-weight:bold; margin-bottom:10px;">Phone No: <span id="profilePhone"></span></p>
+        <p style="font-size:18px; font-weight:bold; margin-bottom:10px;">No. of Devices: <span id="profileDevices"></span></p>
+        <p style="font-size:18px; font-weight:bold; margin-bottom:35px;">Access Period : <span id="profileAccessWrap" style="display:inline-block; vertical-align:top;"></span></p>
+        <button onclick="downloadProfilePdf()" style="width:100%; padding:14px; background:#4CAF50; color:#fff; border:none; border-radius:8px; font-size:17px; font-weight:bold; cursor:pointer; margin-bottom:40px;">Download PDF</button>
+        <p class="tmsCenterLine" style="font-weight:bold; font-size:16px; margin-bottom:5px;">Completely private library.</p>
+        <p class="tmsCenterLine" style="font-weight:bold; font-size:16px; margin-bottom:15px;">Call:+91-9830894559</p>
+        <button onclick="closeProfile()" style="width:100%; padding:12px; background:#ccc; color:#333; border:none; border-radius:8px; font-size:16px; font-weight:bold; cursor:pointer;">Close</button>
+      </div>
+    </div>
+
+<div class="tmsModal" id="signupResultModal">
+  <div class="tmsModalBox" style="max-height:90vh; overflow-y:auto;">
+    <img src="icon-192.png" alt="TMS Library" class="tmsModalLogo">
+    <h2 class="tmsCenterLine" style="color:#FF8C00; font-size:24px; font-weight:bold; margin-bottom:30px;">TMS Library</h2>
+    <p style="font-size:22px; font-weight:bold; margin-bottom:20px;">User ID: <span style="color:#FF8C00;" id="resultUserId"></span></p>
+    <p style="font-size:22px; font-weight:bold; margin-bottom:20px;">Status: <span style="color:#FF8C00;">Pending</span></p>
+    <p style="font-size:22px; font-weight:bold; margin-bottom:20px;">Please pay exact <span style="color:#FF8C00;">Rs. 300/-</span>.</p>
+    <p style="font-size:22px; font-weight:bold; margin-bottom:20px;">Call / WhatsApp to get activated.</p>
+    <p style="font-size:22px; font-weight:bold; margin-bottom:20px;">Biswajit: <span style="color:#FF8C00;">+91-9830894559</span></p>
+    <img src="gpay-qr.png" alt="GPay QR" style="display:block; margin:40px auto 20px auto; width:100%; max-width:340px; height:auto;">
+    <a href="gpay-qr.png" download="TMS-Library-QR.png" style="text-decoration:none;">
+      <button type="button" style="width:100%; padding:14px; background:red; color:#fff; border:none; border-radius:8px; font-size:22px; font-weight:bold; cursor:pointer; margin-bottom:15px;">Download</button>
+    </a>
+    <button onclick="closeSignupResult()" style="width:100%; padding:14px; background:#FF8C00; color:#fff; border:none; border-radius:8px; font-size:22px; font-weight:bold; cursor:pointer;">Close</button>
+  </div>
+</div>
+
+  </main>
+
+  <footer>
+    <p>Completely private library.</p>
+	<p>Call:+91-9830894559</p>
+  </footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqmiTPNCbx2Kd9PKZdaKYrm_tKdR7gqzc",
+      authDomain: "tmsb-online-library.firebaseapp.com",
+      projectId: "tmsb-online-library",
+      storageBucket: "tmsb-online-library.firebasestorage.app",
+      messagingSenderId: "305360233952",
+      appId: "1:305360233952:web:3c92404970ac61c6143785"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let profileListener = null;
+    let currentUserData = null;
+    let deviceWasRegistered = false;
+    let selfInitiatedPinChange = false;
+
+    function getDeviceId() {
+      let id = localStorage.getItem('tmsb_device_id');
+      if (!id) {
+        id = 'dev_' + Date.now() + '_' + Math.random().toString(36).substring(2, 10);
+        localStorage.setItem('tmsb_device_id', id);
+      }
+      return id;
+    }
+
+    function showSignup() {
+      document.getElementById('loginFields').style.display = 'none';
+      document.getElementById('signupPrompt').style.display = 'none';
+      document.getElementById('signupBox').style.display = 'block';
+      document.getElementById('authTitle').innerText = 'Sign Up';
+      document.getElementById('authError').innerText = '';
+    }
+
+    function showLogin() {
+      document.getElementById('loginFields').style.display = 'block';
+      document.getElementById('signupPrompt').style.display = 'block';
+      document.getElementById('signupBox').style.display = 'none';
+      document.getElementById('authTitle').innerText = 'Login';
+      document.getElementById('signupError').innerText = '';
+    }
+
+    function togglePin(id) {
+      const field = document.getElementById(id);
+      field.type = field.type === 'password' ? 'text' : 'password';
+    }
+
+    function toTitleCase(str) {
+      return str.trim().toLowerCase().split(' ')
+        .filter(function(w) { return w.length > 0; })
+        .map(function(w) { return w.charAt(0).toUpperCase() + w.slice(1); })
+        .join(' ');
+    }
+
+    function generateBaseUserId(rawName, phone, useFirst4) {
+      const firstName = rawName.trim().split(/\s+/)[0].toLowerCase();
+      const digits = useFirst4 ? phone.substring(0, 4) : phone.substring(6, 10);
+      return firstName + digits;
+    }
+
+    async function resolveUniqueUserId(rawName, phone, firestoreDb) {
+      const candidate1 = generateBaseUserId(rawName, phone, false); // firstname + last4
+      let doc1 = await firestoreDb.collection("users").where("userId", "==", candidate1).limit(1).get();
+      if (doc1.empty) return candidate1;
+
+      const candidate2 = generateBaseUserId(rawName, phone, true); // firstname + first4
+      let doc2 = await firestoreDb.collection("users").where("userId", "==", candidate2).limit(1).get();
+      if (doc2.empty) return candidate2;
+
+      return candidate2 + phone.substring(9, 10); // firstname + first4 + last digit of phone
+    }
+	
+	    function formatNameInput() {
+      const field = document.getElementById('signupName');
+      const cursorPos = field.selectionStart;
+      const before = field.value;
+      field.value = before.replace(/\b\w/g, function(c) { return c.toUpperCase(); })
+                           .replace(/\B\w/g, function(c) { return c.toLowerCase(); });
+      field.setSelectionRange(cursorPos, cursorPos);
+    }
+
+        document.getElementById('signupName').addEventListener('input', formatNameInput);
+
+async function sha256(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+	
+    async function registerUser() {
+      const errorBox = document.getElementById('signupError');
+      errorBox.innerText = '';
+      const registerBtn = document.getElementById('registerBtn');
+      if (registerBtn.disabled) return;
+      registerBtn.disabled = true;
+      registerBtn.style.opacity = '0.5';
+
+      const SIGNUP_COOLDOWN_MINUTES = 1; // <-- change this number to adjust the wait time
+      const lastSignupTime = localStorage.getItem('tmsb_signup_done');
+      if (lastSignupTime) {
+        const minutesPassed = (Date.now() - parseInt(lastSignupTime)) / 60000;
+        if (minutesPassed < SIGNUP_COOLDOWN_MINUTES) {
+          errorBox.innerText = 'This device recently registered an account. Please try again in ' + Math.ceil(SIGNUP_COOLDOWN_MINUTES - minutesPassed) + ' minutes.';
+          registerBtn.disabled = false;
+          registerBtn.style.opacity = '1';
+          return;
+        }
+      }
+
+            const rawName = document.getElementById('signupName').value;
+      const phone = document.getElementById('signupPhone').value.trim();
+      const pin = document.getElementById('signupPin').value.trim();
+      const pinConfirm = document.getElementById('signupPinConfirm').value.trim();
+
+      const nameParts = rawName.trim().split(/\s+/);
+      if (!/^[A-Za-z\s]+$/.test(rawName.trim()) || nameParts.length < 2) {
+        errorBox.innerText = 'Please enter your full name (first and last name).';
+        registerBtn.disabled = false;
+        registerBtn.style.opacity = '1';
+        return;
+      }
+      if (!/^\d{10}$/.test(phone)) {
+        errorBox.innerText = 'Phone number must be exactly 10 digits.';
+        registerBtn.disabled = false;
+        registerBtn.style.opacity = '1';
+        return;
+      }
+      if (!/^\d{6}$/.test(pin)) {
+        errorBox.innerText = 'PIN must be exactly 6 digits.';
+        registerBtn.disabled = false;
+        registerBtn.style.opacity = '1';
+        return;
+      }
+      if (pin !== pinConfirm) {
+        errorBox.innerText = 'PIN and Confirm PIN do not match.';
+        registerBtn.disabled = false;
+        registerBtn.style.opacity = '1';
+        return;
+      }
+
+      const name = toTitleCase(rawName);
+      const firstName = rawName.trim().split(/\s+/)[0].toLowerCase();
+      const candidates = [
+        firstName + phone.substring(6, 10),
+        firstName + phone.substring(0, 4),
+        firstName + phone.substring(0, 4) + phone.substring(9, 10)
+      ];
+
+      try {
+        let userId = null;
+        for (const candidate of candidates) {
+          const snap = await db.collection("users").doc(candidate).get();
+          if (!snap.exists) { userId = candidate; break; }
+        }
+        if (!userId) {
+          errorBox.innerText = 'Could not generate a unique User ID. Please contact admin.';
+          registerBtn.disabled = false;
+          registerBtn.style.opacity = '1';
+          return;
+        }
+
+        const todayDate = new Date();
+        const oneYearLater = new Date(todayDate);
+        oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+        const pad = function(n) { return n < 10 ? '0' + n : '' + n; };
+        const startStr = todayDate.getFullYear() + '-' + pad(todayDate.getMonth() + 1) + '-' + pad(todayDate.getDate());
+        const endStr = oneYearLater.getFullYear() + '-' + pad(oneYearLater.getMonth() + 1) + '-' + pad(oneYearLater.getDate());
+
+        await db.collection("users").doc(userId).set({
+          name: name,
+          phone: phone,
+          userId: userId,
+          pinHash: await sha256(pin),
+          approved: false,
+          blocked: false,
+          maxDevices: 1,
+          accessStart: startStr,
+          accessEnd: endStr,
+          sessionVersion: 0,
+          devices: []
+        });
+
+        localStorage.setItem('tmsb_signup_done', Date.now().toString());
+        showLogin();
+        document.getElementById('resultUserId').innerText = userId;
+        document.getElementById('signupResultModal').style.display = 'flex';
+      } catch (error) {
+        errorBox.innerText = 'Something went wrong. Please contact admin.';
+      }
+      registerBtn.disabled = false;
+      registerBtn.style.opacity = '1';
+    }
+
+    async function loginUser() {
+      const userId = document.getElementById('userIdInput').value.trim().toLowerCase();
+      const pin = document.getElementById('passwordInput').value;
+      const errorBox = document.getElementById('authError');
+      errorBox.innerText = '';
+      if (!userId || !/^\d{6}$/.test(pin)) { errorBox.innerText = "Invalid Credentials"; return; }
+      try {
+        const snap = await db.collection("users").doc(userId).get();
+        if (!snap.exists || snap.data().pinHash !== await sha256(pin)) {
+          errorBox.innerText = "Invalid Credentials";
+          return;
+        }
+        localStorage.setItem('tms_user_id', userId);
+        startSession(userId);
+      } catch (e) {
+        errorBox.innerText = "Something went wrong. Please try again.";
+      }
+    }
+
+function shareTmsLink() {
+  const shareUrl = 'https://tmsb-maa.github.io/thakur/';
+  document.getElementById('userMenu').style.display = 'none';
+
+  if (navigator.share) {
+    navigator.share({ title: 'TMS Library', url: shareUrl }).catch(function() {});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(shareUrl).then(function() {
+      alert('Link copied: ' + shareUrl);
+    }).catch(function() {
+      prompt('Copy this link:', shareUrl);
+    });
+  } else {
+    prompt('Copy this link:', shareUrl);
+  }
+}
+
+    function logoutUser() {
+      document.getElementById('userMenu').style.display = 'none';
+      endSession();
+    }
+
+    function toggleUserMenu() {
+      const menu = document.getElementById('userMenu');
+      menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+    }
+
+    document.addEventListener('click', function(e) {
+      const menu = document.getElementById('userMenu');
+      const btn = document.getElementById('personBtn');
+      if (menu.style.display === 'block' && !menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.style.display = 'none';
+      }
+    });
+
+    window.addEventListener('popstate', function(e) {
+      document.getElementById('userMenu').style.display = 'none';
+
+      const profileModal = document.getElementById('profileModal');
+      if (profileModal.style.display === 'flex') {
+        profileModal.style.display = 'none';
+      }
+
+      const contentView = document.getElementById('contentView');
+      if (contentView.style.display === 'flex') {
+        contentView.style.display = 'none';
+        document.getElementById('tabListView').style.display = 'block';
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const profileModal = document.getElementById('profileModal');
+        if (profileModal.style.display === 'flex') {
+          closeProfile();
+        }
+      }
+    });
+	
+    function formatDisplayDate(dateStr) {
+      if (!dateStr) return "";
+      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"];
+      const parts = dateStr.split("-");
+      if (parts.length !== 3) return dateStr;
+      const y = parts[0], m = parts[1], d = parts[2];
+      const mIdx = parseInt(m, 10) - 1;
+      if (mIdx < 0 || mIdx > 11) return dateStr;
+      return d + "-" + months[mIdx] + "-" + y;
+    }
+
+    function openProfile() {
+      if (!currentUserData) return;
+      document.getElementById('profileName').innerText = currentUserData.name || "-";
+      document.getElementById('profilePhone').innerText = currentUserData.phone || "-";
+      document.getElementById('profileDevices').innerText = ((currentUserData.devices || []).length) + " / " + (currentUserData.maxDevices || 0);
+
+      const startFmt = currentUserData.accessStart ? formatDisplayDate(currentUserData.accessStart) : "-";
+      const endFmt = currentUserData.accessEnd ? formatDisplayDate(currentUserData.accessEnd) : "";
+      document.getElementById('profileAccessWrap').innerHTML = endFmt ? (startFmt + " -<br>" + endFmt) : startFmt;
+
+      document.getElementById('userMenu').style.display = 'none';
+      document.getElementById('profileModal').style.display = 'flex';
+      history.pushState({ view: 'profileModal' }, '', '#profile');
+    }
+
+    function closeProfile() {
+      document.getElementById('profileModal').style.display = 'none';
+      if (window.location.hash === '#profile') {
+        history.back();
+      }
+    }
+	
+	function closeSignupResult() {
+      document.getElementById('signupResultModal').style.display = 'none';
+    }
+
+    function openChangePin() {
+      document.getElementById('newPinInput').value = '';
+      document.getElementById('confirmPinInput').value = '';
+      document.getElementById('changePinError').innerText = '';
+      document.getElementById('userMenu').style.display = 'none';
+      document.getElementById('changePinModal').style.display = 'flex';
+    }
+
+    function closeChangePin() {
+      document.getElementById('changePinModal').style.display = 'none';
+    }
+
+    function submitChangePin() {
+      const errorBox = document.getElementById('changePinError');
+      errorBox.innerText = '';
+      const newPin = document.getElementById('newPinInput').value.trim();
+      const confirmPin = document.getElementById('confirmPinInput').value.trim();
+
+      if (!/^\d{6}$/.test(newPin)) {
+        errorBox.innerText = 'PIN must be exactly 6 digits.';
+        return;
+      }
+      if (newPin !== confirmPin) {
+        errorBox.innerText = 'New PIN and Confirm PIN do not match.';
+        return;
+      }
+
+      const uid = localStorage.getItem('tms_user_id');
+      if (!uid) return;
+
+      sha256(newPin)
+        .then(function(h) {
+          selfInitiatedPinChange = true;
+          return db.collection("users").doc(uid).update({
+            pinHash: h,
+            sessionVersion: firebase.firestore.FieldValue.increment(1),
+            devices: []
+          });
+        })
+        .catch(function(error) {
+          errorBox.innerText = 'Something went wrong. Please try again or contact admin.';
+        });
+    }
+
+    function downloadProfilePdf() {
+      if (!currentUserData) return;
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(18);
+      doc.text("TMS Library", 105, 20, { align: "center" });
+      doc.setFontSize(14);
+      doc.text("Name: " + (currentUserData.name || "-"), 20, 40);
+      doc.text("Phone No: " + (currentUserData.phone || "-"), 20, 50);
+      doc.text("No. of Devices: " + ((currentUserData.devices || []).length) + " / " + (currentUserData.maxDevices || 0), 20, 60);
+      doc.text("Access Period: " + (currentUserData.accessStart ? currentUserData.accessStart : "-") + " - " + (currentUserData.accessEnd ? currentUserData.accessEnd : "-"), 20, 70);
+      doc.setFontSize(12);
+      doc.text("Completely private library.", 105, 90, { align: "center" });
+      doc.text("Call:+91-9830894559", 105, 100, { align: "center" });
+
+      const timestamp = Date.now();
+      const filename = (currentUserData.userId || "user") + "_" + (currentUserData.phone || "phone") + "_" + timestamp + ".pdf";
+      doc.save(filename);
+    }
+
+        function tryInstantAuthDisplay() {
+      try {
+        const wasLoggedIn = localStorage.getItem('tms_index_last_logged_in') === 'true';
+        if (wasLoggedIn) {
+          document.getElementById('checkingMsg').style.display = 'none';
+          document.getElementById('authBox').style.display = 'none';
+          document.getElementById('personBtn').style.display = 'flex';
+          document.getElementById('barContainer').style.display = 'flex';
+        }
+      } catch (e) {
+        // ignore — normal "checking..." flow will show instead
+      }
+    }
+
+    tryInstantAuthDisplay();
+
+    function endSession() {
+      if (profileListener) { profileListener(); profileListener = null; }
+      localStorage.removeItem('tms_user_id');
+      try { localStorage.removeItem('tms_index_last_logged_in'); } catch (e) {}
+      document.getElementById('checkingMsg').style.display = 'none';
+      document.getElementById('authBox').style.display = 'block';
+      document.getElementById('personBtn').style.display = 'none';
+      document.getElementById('userMenu').style.display = 'none';
+      document.getElementById('profileModal').style.display = 'none';
+      document.getElementById('changePinModal').style.display = 'none';
+      document.getElementById('barContainer').style.display = 'none';
+      deviceWasRegistered = false;
+      currentUserData = null;
+    }
+
+    function startSession(userId) {
+      if (profileListener) { profileListener(); profileListener = null; }
+
+      profileListener = db.collection("users").doc(userId).onSnapshot(function(doc) {
+        if (!doc.exists) {
+          document.getElementById('authError').innerText = "Account not found. Contact admin.";
+          endSession();
+          return;
+        }
+        const data = doc.data();
+        const today = new Date().toISOString().split('T')[0];
+
+        if (!data.approved) {
+          document.getElementById('authError').innerText = "Account pending admin approval.";
+          endSession();
+          return;
+        }
+        if (data.blocked) {
+          document.getElementById('authError').innerText = "Account has been blocked by admin.";
+          endSession();
+          return;
+        }
+        if (data.accessStart && today < data.accessStart) {
+          document.getElementById('authError').innerText = "Access not yet started.";
+          endSession();
+          return;
+        }
+        if (data.accessEnd && today > data.accessEnd) {
+          document.getElementById('authError').innerText = "Access period has expired.";
+          endSession();
+          return;
+        }
+
+        const deviceId = getDeviceId();
+        const devices = data.devices || [];
+
+        if (devices.includes(deviceId)) {
+          deviceWasRegistered = true;
+        } else if (deviceWasRegistered) {
+          document.getElementById('authError').innerText = selfInitiatedPinChange
+            ? "PIN changed successfully. Please login with your new PIN."
+            : "You have been logged out.";
+          selfInitiatedPinChange = false;
+          deviceWasRegistered = false;
+          endSession();
+          return;
+        } else {
+          let updatedDevices = devices.slice();
+          if (updatedDevices.length >= (data.maxDevices || 1)) {
+            updatedDevices.shift();
+          }
+          updatedDevices.push(deviceId);
+          deviceWasRegistered = true;
+          db.collection("users").doc(userId).update({
+            devices: updatedDevices
+          }).catch(function(error) {
+            alert("Something went wrong. Please contact admin.");
+          });
+        }
+
+        currentUserData = data;
+
+        document.getElementById('checkingMsg').style.display = 'none';
+        document.getElementById('authBox').style.display = 'none';
+        document.getElementById('personBtn').style.display = 'flex';
+        document.getElementById('barContainer').style.display = 'flex';
+        document.getElementById('authError').innerText = "";
+
+        try {
+          localStorage.setItem('tms_index_last_logged_in', 'true');
+        } catch (e) {}
+      }, function(error) {
+        endSession();
+      });
+    }
+
+    const savedUid = localStorage.getItem('tms_user_id');
+    if (savedUid) { startSession(savedUid); } else { endSession(); }
+
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('sw.js');
+      });
+    }
+
+    let deferredInstallPrompt = null;
+    const installBtn = document.getElementById('installPwaBtn');
+
+    function isPwaInstalled() {
+      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      setTimeout(function() {
+        if (!isPwaInstalled()) {
+          installBtn.style.display = 'block';
+        }
+      }, 2000);
+    });
+
+    installBtn.addEventListener('click', function() {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      deferredInstallPrompt.userChoice.then(function() {
+        deferredInstallPrompt = null;
+        installBtn.style.display = 'none';
+      });
+    });
+
+    window.addEventListener('appinstalled', function() {
+      installBtn.style.display = 'none';
+    });
+  </script>
+
+</body>
+</html>
