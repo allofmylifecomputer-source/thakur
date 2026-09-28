@@ -552,6 +552,10 @@ function shareTmsLink() {
         document.getElementById('newMaxDevices').value = "1";
         document.getElementById('newStart').value = "";
         document.getElementById('newEnd').value = "";
+		setUserFilter('approved');
+        const fresh = await db.collection("tmsbusers").get();
+        latestUsersSnapshot = fresh;
+        renderUserTable();
       } catch (error) {
         errorBox.innerText = error.message;
       }
@@ -593,11 +597,13 @@ function shareTmsLink() {
     }
 	
     // ---- LOAD USERS ----
-    // ---- LOAD USERS ----
     function loadUsers() {
+      if (usersListener) { usersListener(); usersListener = null; }
       usersListener = db.collection("tmsbusers").onSnapshot(function(snapshot) {
         latestUsersSnapshot = snapshot;
         renderUserTable();
+      }, function(error) {
+        document.getElementById('createError').innerText = "List error: " + error.message;
       });
     }
 
