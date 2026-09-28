@@ -457,11 +457,11 @@ const firebaseConfig = {
 
     async function resolveUniqueUserId(rawName, phone, firestoreDb) {
       const candidate1 = generateBaseUserId(rawName, phone, false); // firstname + last4
-      let doc1 = await firestoreDb.collection("users").where("userId", "==", candidate1).limit(1).get();
+      let doc1 = await firestoreDb.collection("tmsbusers").where("userId", "==", candidate1).limit(1).get();
       if (doc1.empty) return candidate1;
 
       const candidate2 = generateBaseUserId(rawName, phone, true); // firstname + first4
-      let doc2 = await firestoreDb.collection("users").where("userId", "==", candidate2).limit(1).get();
+      let doc2 = await firestoreDb.collection("tmsbusers").where("userId", "==", candidate2).limit(1).get();
       if (doc2.empty) return candidate2;
 
       return candidate2 + phone.substring(9, 10); // firstname + first4 + last digit of phone
@@ -545,7 +545,7 @@ async function sha256(text) {
       try {
         let userId = null;
         for (const candidate of candidates) {
-          const snap = await db.collection("users").doc(candidate).get();
+          const snap = await db.collection("tmsbusers").doc(candidate).get();
           if (!snap.exists) { userId = candidate; break; }
         }
         if (!userId) {
@@ -562,7 +562,7 @@ async function sha256(text) {
         const startStr = todayDate.getFullYear() + '-' + pad(todayDate.getMonth() + 1) + '-' + pad(todayDate.getDate());
         const endStr = oneYearLater.getFullYear() + '-' + pad(oneYearLater.getMonth() + 1) + '-' + pad(oneYearLater.getDate());
 
-        await db.collection("users").doc(userId).set({
+        await db.collection("tmsbusers").doc(userId).set({
           name: name,
           phone: phone,
           userId: userId,
@@ -594,7 +594,7 @@ async function sha256(text) {
       errorBox.innerText = '';
       if (!userId || !/^\d{6}$/.test(pin)) { errorBox.innerText = "Invalid Credentials"; return; }
       try {
-        const snap = await db.collection("users").doc(userId).get();
+        const snap = await db.collection("tmsbusers").doc(userId).get();
         if (!snap.exists || snap.data().pinHash !== await sha256(pin)) {
           errorBox.innerText = "Invalid Credentials";
           return;
@@ -735,7 +735,7 @@ function shareTmsLink() {
       sha256(newPin)
         .then(function(h) {
           selfInitiatedPinChange = true;
-          return db.collection("users").doc(uid).update({
+          return db.collection("tmsbusers").doc(uid).update({
             pinHash: h,
             sessionVersion: firebase.firestore.FieldValue.increment(1),
             devices: []
@@ -800,7 +800,7 @@ function shareTmsLink() {
     function startSession(userId) {
       if (profileListener) { profileListener(); profileListener = null; }
 
-      profileListener = db.collection("users").doc(userId).onSnapshot(function(doc) {
+      profileListener = db.collection("tmsbusers").doc(userId).onSnapshot(function(doc) {
         if (!doc.exists) {
           document.getElementById('authError').innerText = "Account not found. Contact admin.";
           endSession();
@@ -850,7 +850,7 @@ function shareTmsLink() {
           }
           updatedDevices.push(deviceId);
           deviceWasRegistered = true;
-          db.collection("users").doc(userId).update({
+          db.collection("tmsbusers").doc(userId).update({
             devices: updatedDevices
           }).catch(function(error) {
             alert("Something went wrong. Please contact admin.");
