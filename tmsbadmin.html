@@ -199,7 +199,8 @@
     vertical-align: middle;
   }
 
-  th { background-color: #FF8C00; color: #000; }
+  th { background-color: #FF8C00; color: #000; white-space: nowrap; padding: 14px 10px; }
+  th:last-child { min-width: 140px; text-align: center; }
 
     td input {
     width: 100%;
@@ -359,6 +360,7 @@
           <th>Approved</th>
           <th>Blocked</th>
           <th>Max Devices</th>
+          <th>Logged in</th>
           <th>Start</th>
           <th>End</th>
           <th>Actions</th>
