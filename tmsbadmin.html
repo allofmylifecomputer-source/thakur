@@ -510,6 +510,8 @@ function shareTmsLink() {
     function closeModals() {
       document.getElementById('qrModal').style.display = 'none';
       document.getElementById('bankModal').style.display = 'none';
+      document.getElementById('pwModal').style.display = 'none';
+      pwCallback = null;
     }
 
     window.addEventListener('popstate', closeModals);
@@ -517,7 +519,8 @@ function shareTmsLink() {
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape' &&
           (document.getElementById('qrModal').style.display === 'flex' ||
-           document.getElementById('bankModal').style.display === 'flex')) {
+           document.getElementById('bankModal').style.display === 'flex' ||
+           document.getElementById('pwModal').style.display === 'flex')) {
         history.back();
       }
     });
@@ -712,12 +715,14 @@ function shareTmsLink() {
       const value = parseInt(document.getElementById(selectId).value);
       const update = {};
       update[fieldKey] = value;
-      db.collection("settings").doc("quoteSettings").set(update, { merge: true })
-        .then(function() {
-          const status = document.getElementById('rotationStatus');
-          status.innerText = 'Saved! New timing is effective immediately.';
-          setTimeout(function() { status.innerText = ''; }, 4000);
-        });
+      askAdminPassword(function() {
+        db.collection("settings").doc("quoteSettings").set(update, { merge: true })
+          .then(function() {
+            const status = document.getElementById('rotationStatus');
+            status.innerText = 'Saved! New timing is effective immediately.';
+            setTimeout(function() { status.innerText = ''; }, 4000);
+          });
+      });
     }
 	
     // ---- LOAD USERS ----
@@ -835,12 +840,12 @@ function shareTmsLink() {
       document.getElementById('pwInput').value = '';
       document.getElementById('pwError').innerText = '';
       document.getElementById('pwModal').style.display = 'flex';
+	  history.pushState({ modalOpen: true }, '');
       document.getElementById('pwInput').focus();
     }
 
     function closePw() {
-      document.getElementById('pwModal').style.display = 'none';
-      pwCallback = null;
+      if (document.getElementById('pwModal').style.display === 'flex') history.back();
     }
 
     async function submitPw() {
