@@ -260,7 +260,7 @@
     .tmsModalBox p { font-size: 17px; }
   }
 
-.avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; display: block; margin: 20px auto 0 auto; }
+.avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 15px auto; }
 @media (max-width: 480px) { .avatar { width: 115px; height: 115px; } }
 
 </style>
@@ -703,8 +703,9 @@ function shareTmsLink() {
         try { chosen = await getChosenSerial(key, allSerials, rotationHours, uid); }
         catch (e) { chosen = allSerials[0]; }
 
-        contentBox.innerHTML = (textBySerial[chosen] || '') +
-          '<img class="avatar" src="images/srisriramthakur.png" alt="Sri Sri Ramthakur">';
+        contentBox.innerHTML =
+          '<img class="avatar" src="images/srisriramthakur.png" alt="Sri Sri Ramthakur">' +
+          (textBySerial[chosen] || '');
       } catch (e) {
         contentBox.innerText = 'Content not available.';
       }
