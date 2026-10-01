@@ -292,7 +292,7 @@
         <p id="pageTitleBn">অবতার রূপে ভগবান</p>
 
         <div class="barContainer">
-          <div class="bar" style="background-color:#E3F2E1;" onclick="openPrayer('sri-sri-ramthakur-bani', 'Sri Sri Ramthakur Bani', 'শ্রী শ্রী রামঠাকুরের বাণী')">Sri Sri Ramthakur Bani<span class="barBengali">শ্রী শ্রী রামঠাকুরের বাণী</span></div>
+          <div class="bar" style="background-color:#E3F2E1;" onclick="openPrayer('sri-sri-ramthakur-bani', 'Sri Sri Ramthakur Bani', 'শ্রী শ্রী রামঠাকুরের বাণী', 'srisriramthakur')">Sri Sri Ramthakur Bani<span class="barBengali">শ্রী শ্রী রামঠাকুরের বাণী</span></div>
         </div>
       </div>
 
@@ -681,7 +681,7 @@ function shareTmsLink() {
       return order[position];
     }
 
-    async function loadAvatarQuote(key, contentBox) {
+    async function loadAvatarQuote(key, contentBox, img, titleEn) {
       const uid = localStorage.getItem('tms_user_id');
       try {
         const res = await fetch('avatar-bani/' + key + '.json?t=' + Date.now());
@@ -704,14 +704,14 @@ function shareTmsLink() {
         catch (e) { chosen = allSerials[0]; }
 
         contentBox.innerHTML =
-          '<img class="avatar" src="images/srisriramthakur.png" alt="Sri Sri Ramthakur">' +
+          '<img class="avatar" src="images/' + img + '.png" alt="' + titleEn + '">' +
           (textBySerial[chosen] || '');
       } catch (e) {
         contentBox.innerText = 'Content not available.';
       }
     }
 
-    function openPrayer(key, titleEn, titleBn) {
+    function openPrayer(key, titleEn, titleBn, img) {
       currentContentKey = key;
       document.getElementById('tabListView').style.display = 'none';
       document.getElementById('contentView').style.display = 'flex';
@@ -722,7 +722,7 @@ function shareTmsLink() {
       const contentBox = document.getElementById('contentBox');
       contentBox.innerText = 'Loading...';
 
-      loadAvatarQuote(key, contentBox);
+      loadAvatarQuote(key, contentBox, img, titleEn);
     }
 
     function closePrayer() {
